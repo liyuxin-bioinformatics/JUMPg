@@ -35,8 +35,8 @@ sub generateDb {
 		#system("perl /home/yli4/customizedDB/AD/DB/AD_labelfree_pt/jump.pl -p jumpdb.params");
 		#system("perl /home/yli4/customizedDB/AD/DB/pepNterm_Gln2pyroGlu/JUMPsj/jump.pl -p jumpdb.params");
 		#system("perl /home/yli4/development/JUMPg/v1.0/programs/JUMPsj/jump.pl -p jumpdb.params");
-		#system("perl $JUMPscript -p jumpdb.params");
-		system("$JUMPscript -p jumpdb.params");
+		system("perl $JUMPscript -p jumpdb.params");
+		#system("$JUMPscript -p jumpdb.params");
 		system("rm jumpdb.params");
 		my $generatedDb = $dbName.".fasta.mdx";
 		if (!-e $generatedDb) {

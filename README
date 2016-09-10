@@ -22,9 +22,10 @@ Software Requirements
 The program is written by a combination of Perl and R. It should run on every system with Perl5 and R 3.1.0. The minimum required Perl version should be Perl 5.8 or better.
 
 Perl modules are needed:
-    Parallel::ForkManager
+	Parallel::ForkManager
 	Statistics::Distributions
 	Clone
+	Excel/Writer/XLSX.pm (optional but recommended)
 
 To install perl modules, please refer to:
 http://www.cpan.org/modules/INSTALL.html
@@ -44,9 +45,9 @@ Cluster mode (key parameters: 'cluster = 1' & 'Job_Management_System = SGE'):
  Batch-queuing system: SGE, version 6.1u5, qsub and qstat
  128 GB memory and 64 cores on each node
 
-Single server mode (key parameters: 'cluster = 0' & 'processors_used = 40'): 
-  512 GB memory
-  2 GHz CPU processors with 64 cores
+Single server mode (key parameters: 'cluster = 0' & 'processors_used = 8'): 
+  32 GB memory
+  2 GHz CPU processors with 8 cores
  
 ----------------------
 Installation
@@ -70,6 +71,7 @@ perl path_setup.pl
 cd ..
 
 -Step 1b: make programs executable:
+
 chmod a+x programs/pa/transcript_6FT/blat
 chmod a+x programs/s/jump.pl
 chmod a+x programs/f/jump_f.pl
