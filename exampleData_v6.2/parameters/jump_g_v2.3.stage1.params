@@ -1,0 +1,110 @@
+# JUMPg (JUMProteogenomics) parameter file (Version: 2.2, Date: 01/05/2016)
+
+# general parameters
+output_directory = stage1								# add a suffix to output base names; prefix always = 'gnm_'
+
+############################################################################################################################
+# customized database 
+input_ref_proteins = /home/yli4/development/JUMPg/install_test_072816/JUMPg-master/exampleData_v5/uniProt/reference_uniProt_human.fasta	# reference protein database (e.g., uniProt); FASTA format
+input_mutation = /home/yli4/development/JUMPg/install_test_072816/JUMPg-master/exampleData_v5/rna_database/mutations.txt		# genomic variant file; AnnoVar input format
+input_junction = /home/yli4/development/JUMPg/install_test_072816/JUMPg-master/exampleData_v5/rna_database/junctions.txt		# splice junction file; STAR output format
+input_transcript_6FT = 0 								# RNA transcript sequences in FASTA format
+min_ORF_AA = 66										# amino acids: minimum length of ORF to be retained in transcript 6FT database
+
+# database parameters
+enzyme_info = Tryptic KR P                                                                      # LysC K ; ArgC R ; GluC DE ;
+digestion = full                                                                                # full or partial
+max_mis_cleavage = 2                                                                            # maximal miscleavage sites allowed for each peptide
+min_peptide_mass = 400.0000                                                                     # minimal mass of peptide database
+max_peptide_mass = 6000.0000                                                                    # maximal mass of peptide database
+max_modif_num = 3                                                                               # maximal modifications allowed for each peptide
+
+############################################################################################################################
+# Annotation files needed for the program
+annovar_annotation_file = /home/yli4/development/JUMPg/install_test_072816/JUMPg-master/annotations/human/hg19_knownGene.txt # refFlat file
+gene_ID_convert_file = /home/yli4/development/JUMPg/install_test_072816/JUMPg-master/annotations/human/hg19_kgXref.txt		# gene name-ID convertion file
+reference_genome = /home/yli4/genomes/hg19_genome_raw.fa					# genome
+
+############################################################################################################################
+# database search
+
+# Preprocessing parameters
+first_scan_extraction = 0                                                                       # the first scan number for search
+last_scan_extraction = 1000000                                                                 # the last scan number for search, use a large number (e.g. 10E6) for full scans
+max_num_ppi = 0                                                                                 # 0 = disable; 1-0 = max precursor ions selected for mixed MS2 search
+percentage_ppi = 50                                                                             # minimal percentage of precursor peak intensity (ppi) when max_num_ppi = 0
+
+# Tagging
+tag_generation = 1                                                                              # 0 = disable; 1 = enable to generate tags
+
+# Database searching
+ion_series = 1 1 0 0 0 0 0 1 0
+# a, b, c, d, v, w, x, y and z ions, respectively
+ion_losses_MS2 = 0 0 0 0                                                                        # 0 = disable; 1 = enable neutral loss of H2O, HPO3, H3PO4 and NH3, respectively
+ion_losses_MS1 = 0                                                                              # 0 = disable; 1 = use precursor ion phosphate neutral loss to estimate #S/T phosphorylation
+ion_scoring = 1                                                                                 # 1 = scoring product ions simultaneously; 2 = scoring ion series and charge states separately
+                                                                                                # by relaxing monoisotopic mass by including M-2, M-1, M, M+1, M+2
+# Dynamic Modifications: SEQUEST requires no new database; but JUMP requires new database
+# C:  57.02146 carbamidomethylation or 71.0371 acrylamide
+# STY: 79.96633;  M: 15.99492; GG: 114.04293
+# SILAC: K:4.02511, 6.02013, 8.01420; SILAC: R:6.02013, 10.00827
+# TMT6-10: 229.1629321; TMT2: 225.1558327; TMT0: 224.1524779
+dynamic_M = 15.99492                                                                            # add each dynamic modification by one line, starting with dynamic_aa
+
+# Static Modification
+add_Nterm_peptide = 0.0000                                                                   # TMT modification or other amine labeling
+add_Cterm_peptide = 0.0000
+add_A_Alanine = 0.0000
+add_B_avg_NandD = 0.0000
+add_C_Cysteine = 0.0000                                                                         # Cys alkylation
+add_D_Aspartic_Acid = 0.0000
+add_E_Glutamic_Acid = 0.0000
+add_F_Phenylalanine = 0.0000
+add_G_Glycine = 0.0000
+add_H_Histidine = 0.0000
+add_I_Isoleucine = 0.0000
+add_J_user_amino_acid = 0.0000
+add_K_Lysine = 0.0000                                                                           # TMT modification or other amine labeling
+add_L_Leucine = 0.0000
+add_M_Methionine = 0.0000
+add_N_Asparagine = 0.0000
+add_O_Ornithine = 0.0000
+add_P_Proline = 0.0000
+add_Q_Glutamine = 0.0000
+add_R_Arginine = 0.0000
+add_S_Serine = 0.0000
+add_T_Threonine = 0.0000
+add_U_user_amino_acid = 0.0000
+add_V_Valine = 0.0000
+add_W_Tryptophan = 0.0000
+add_X_LorI = 0.0000
+add_Y_Tyrosine = 0.0000
+add_Z_avg_QandE = 0.0000
+
+# Other parameters
+cluster = 0                                                                                     # 0 = disable; 1 = enable; using master node only or entire cluster
+processors_used = 45                                                                            # used when cluster = 0: how many processors used for search
+Job_Management_System = SGE                                                                     # SGE used by current cluster; other systems (e.g. LSF & PBS) may be used
+temp_file_removal = 1                                                                           # 0 = disable (keep temporary files); 1 = enable (remove temporary files)
+
+############################################################################################################################
+# PSM filtering
+
+# PSMs filtered by (i) defined minimum filtering parameters, (ii) mass accuracy, and (iii) scoring
+# For scoring filtering, PSMs filtered by (i) initial FDR, (ii) peptide or protein categorization and mupltistep FDR filtering, and (iii) manual one hit-wonder-removal
+unique_protein_or_peptide = protein             # use protein or peptide FDR as cutoff
+FDR = 1                                         # %FDR for filtering peptides or one-hit-wonder proteins (fixed <1% FDR for proteins matched by two or more precursors)
+
+############################################################################################################################
+# spectrum quality control based on accepted PSMs
+PSM_recoveray_rate = 99				# minimum percentage of accepted PSMs should be included for 2nd stage analysis 
+						# this parameter is used for selecting MS2 quality score threshold
+
+############################################################################################################################
+# run contrl parameters
+# customized peptide database steps will be automatecally skipped if existing database are detected
+bypass_database_search = 0			# 0 = run database search; 1 = bypass
+bypass_PSM_filter = 0				# 0 = run PSM filtering; 1 = bypass
+bypass_quality_filter = 0			# 0 = run MS2 quality score; 1 = bypass
+bypass_peptide_annotation = 0			# 0 = ; 1 = bypass
+
