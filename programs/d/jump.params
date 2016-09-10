@@ -1,0 +1,103 @@
+# Version 12.0.0, Date: 11/11/2014
+search_engine = JUMP                                                                            # use JUMP or SEQUEST program for database search
+
+# Database settings
+database_name = /data1/database/20141104/human_ft_mc2_c0_TMT_K229.fasta.mdx                              # use .fasta.mdx for JUMP and .fasta.hdr for SEQUEST
+pit_file = /data1/database/20141104/HUMAN.pit                                                   # protein inference table (pit) for grouping proteins/genes
+peptide_tolerance = 6                                                                           # precursor mass (MH+) tolerance, default 6 ppm after mass correction
+peptide_tolerance_units = 2                                                                     # 1 = Da; 2 = PPM;                                               
+
+# Preprocessing parameters
+first_scan_extraction = 0   	                                                                # the first scan for search
+last_scan_extraction = 1000000                                                                  # the last scan for search, use a large number (e.g. 10E6) for full run
+isolation_window = 1.6                                                                          # +/- (isolation_window)/2 based on MS2 isolation window (e.g. 1.6 m/z)
+interscanppm = 15                                                                               # mass tolerance for interscan precursor identification
+intrascanppm = 10                                                                               # mass tolerance for intrascan isotopic decharging
+max_num_ppi = 0                                                                                 # 0 = disable; 1-9 = max precursor ions selected for mixed MS2 search
+percentage_ppi = 10                                                                              # minimal percentage of precursor peak intensity (ppi) when max_num_ppi = 0   
+ppi_charge_0 = 1                                                                                # 0 = discard uncharged MS1 (charge 0); 1 = manual charge assignment (+2,+3)
+ppi_charge_1 = 1                                                                                # 0 = discard MS1 with charge +1; 1 = enable original charge +1
+
+mass_correction = 2                                                                             # 0 = no correction
+                                                                                                # 1 = MS1 correction based on MS1 ion (i.e. 445.120024533692)
+                                                                                                # 2 = MS1 and MS2 correction based on MS2 ion (TMT 126 reporter, TMT-K/K/R y1 ions)
+
+prec_window = 3                                                                                 # 0 = disable; 1-10 (Da) = mz window for removing precursor ions
+MS2_deisotope = 1                                                                               # 0 = disable; 1 = enable
+ppm = 10                                                                                        # mass tolerance for MS2 decharging and deisotoping
+charge12_ppm = 15                                                                               # mass tolerance for merging different charged ions with the same mass              
+ms2_consolidation = 10                                                                          # maximal number of peaks retained within each 100-Da window
+TMT_data = 0											# minimal mass of the MS2 region used for MS2 peak consolidation
+
+# Tagging
+tag_generation = 1                                                                              # 0 = disable; 1 = enable to generate tags
+tag_tolerance = 10    	                                                                        # mass tolerance for measuring peak distance for generating tags
+tag_tolerance_unit = 2                                                                          # 1 = Da; 2 = PPM; 
+tag_select_method = comb_p                                                                      # tag ranking: comb_p, hyper_p, rank_p
+
+# Database Searching
+ion_series = 1 1 0 0 0 0 0 1 0                                                                  # a, b, c, d, v, w, x, y, and z ions, respectively
+frag_mass_tolerance = 15                                                                        # mass tolerance for MS2 ion matching
+frag_mass_tolerance_unit = 2                                                                    # 1 = Da; 2 = PPM; 
+
+matching_method = hyper_p                                                                       # PSM scoring: comb_p, hyper_p, rank_p
+tag_search_method = 2                                                                           # 1 = exit when found; 2 = exhaustive search using tags defined by max_number_tag_for_search
+max_number_tags_for_search = 50                                                                 # max tags used for search unless the total number of tags is smaller than this defined value
+number_of_selected_result = 5                                                                   # maximal tentative PSMs in .spout ranked by Jscore
+number_of_detailed_result = 5                                                                   # maximal tentative PSMs in .spout ranked by pattern matching score
+second_search = 1                                         					# 0 = disable; 1 = enable; for PSMs with FDR>0, perform the another round of search 
+                                                                                                # by relaxing monoisotopic mass by including M-2, M-1, M, M+1, M+2
+# Dynamic Modifications: SEQUEST requires no new database; but JUMP requires new database.               
+# C:  57.02146 carbamidomethylation or 71.0371 acrylamide
+# STY: 79.96633;  M: 15.99492; GG: 114.04293
+# SILAC: K:4.02511, 6.02013, 8.01420; SILAC: R:6.02013, 10.00827
+# TMT6-10: 229.1629321; TMT2: 225.1558327; TMT0: 224.1524779
+dynamic_M = 15.99492                                                                            # add each dynamic modification by one line, starting with dynamic_aa  
+#dynamic_C = 57.02146                                             		                # add additional dynamic modification by line, starting with dynamic_aa
+
+# parameters for creating database (should match with the selected database)
+enzyme_info = Tryptic KR P                                                                      # LysC K ; ArgC R ; GluC DE ;
+digestion = full                                                                                # full or partial
+max_mis_cleavage = 2                                                                            # maximal miscleavage sites allowed for each peptide
+min_peptide_mass = 400.0000                                                                     # minimal mass of peptide database
+max_peptide_mass = 6000.0000                                                                    # maximal mass of peptide database
+inclusion_decoy = 0                                                                             # 0 = skip decoys; 1 = enable decoys; decoys already included in xxx_ft_mc2_c0_TMT_K229.fasta
+max_modif_num = 3                                                                               # maximal modifications allowed for each peptide
+
+# Static Modification
+add_Nterm_peptide = 229.1629321                                                                      # TMT modification or other amine labeling
+add_Cterm_peptide = 0.0000
+add_A_Alanine = 0.0000
+add_B_avg_NandD = 0.0000
+add_C_Cysteine = 0.0000                                                                         # Cys alkylation
+add_D_Aspartic_Acid = 0.0000
+add_E_Glutamic_Acid = 0.0000
+add_F_Phenylalanine = 0.0000
+add_G_Glycine = 0.0000
+add_H_Histidine = 0.0000
+add_I_Isoleucine = 0.0000
+add_J_user_amino_acid = 0.0000
+add_K_Lysine = 229.1629321                                                                           # TMT modification or other amine labeling
+add_L_Leucine = 0.0000
+add_M_Methionine = 0.0000
+add_N_Asparagine = 0.0000
+add_O_Ornithine = 0.0000
+add_P_Proline = 0.0000
+add_Q_Glutamine = 0.0000
+add_R_Arginine = 0.0000
+add_S_Serine = 0.0000
+add_T_Threonine = 0.0000
+add_U_user_amino_acid = 0.0000
+add_V_Valine = 0.0000
+add_W_Tryptophan = 0.0000
+add_X_LorI = 0.0000
+add_Y_Tyrosine = 0.0000
+add_Z_avg_QandE = 0.0000
+
+# Other Parameters
+simulation = 0                                                                                  # 0 = disable; 1 = enable; this function used for testing the target-decoy strategy 
+sim_MS1 = 1000                                                                                  # ppm addition for MS1 decoys
+sim_MS2 = 5                                                                                     # Da window for randomized MS2 peaks
+cluster = 1                                                                                     # 0 = disable; 1 = enable; using master node only or entire cluster
+Job_Management_System = SGE                                                                     # SGE used by current cluster; other systems (e.g. LSF & PBS) may be used.
+

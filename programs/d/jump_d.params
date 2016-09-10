@@ -1,0 +1,28 @@
+# Builddb Version 12.0.0 (03/01/2015)
+# Builddb generates a search database and/or a protein inference table (PIT) using the input databases (.fasta files)
+# The type of a database (for JUMP or SEQUEST) solely depends on the search_engine information in "jump.params" file below
+# All the modification information for the database also depends on the "jump.params" file
+
+# Parameters for generating a new database ######################################################################################################################################
+input_database1 = /data1/database/MOUSE.fasta							# Absolute path of input_database1 (i.e. .fasta file)
+#input_database2 = /data1/database/builddb/RAT.fasta						# Absolute path of input_database2
+												# More databases can be used (e.g. input_database3 = /data1/database/ECOLI.fasta)
+output_prefix = mouse										# Prefix for a new database (and .pit) file
+include_contaminants = 1									# 0 = do not include contaminants; 1 = include contaminants
+input_contaminants = /data1/database/contaminants.fasta						# Absolute path of a .fasta file containing contaminants
+decoy_generation = 1										# 0 = do not include decoys; 1 = include decoys
+decoy_generation_method = 2									# 1 = reverse; 2 = reverse and switch every K/R with its preceding AA
+jump.params = /data1/database/jump_tmt10.params							# Only search engine and modification information will be obtained from the file
+												# "database_name" in a jump.params file will be ignored
+bypass_db_generation = 1									# 0 = generate database, 1 = bypass the generation of database (only pit will be generated)
+
+# Parameters for generating a protein inference table (PIT) (keep the prefix "list_") ###########################################################################################
+list_protein_abundance1 = /data1/database/KnowledgeTables/ProteinAbundance/Mouse_Abundance_emPAI.txt	# Absolute path of a file containing protein abundance information
+												# More abundance information can be used
+												# (e.g. list_protein_abundance2 = /data1/database/Rat_Abundance.txt)
+list_TFs = /data1/database/KnowledgeTables/TFs/tfs_from_TRANSFAC.txt				# Absolute path of a file containing protein annotation information, TFs (transcription factors)
+list_oncogenes = /data1/database/KnowledgeTables/Oncogenes/oncogenes_from_literatures.txt	# Absolute path of a file containing protein annotation information, oncogenes
+list_kinases = /data1/database/KnowledgeTables/Kinases/kinases_from_pkinfam.txt			# Absolute path of a file containing protein annotation information, kinases
+list_GPCRs = /data1/database/KnowledgeTables/GPCRs/gpcrs.txt					# Absolute path of a file containing protein annotation information, GPCRs
+list_epigenetic_factors = /data1/database/KnowledgeTables/EpigeneticRegulators/epigenetic_regulators.txt
+list_spliceosomal_proteins = /data1/database/KnowledgeTables/SpliceosomalProteins/spliceosomal_proteins.txt

@@ -1,0 +1,19 @@
+# inputs:
+#RNAseq_reads: directly as inputs
+genome_dir = ~/genomes/STAR	# indexed by STAR
+kayrotypic_ordered_genome = /home/yli4/genomes/GATK/hg19_sorted/hg19_genome_raw_formatted_kayrotypic.fa 	# required by GATK
+
+# outputs:
+outFileNamePrefix = test1
+
+# program paths:
+STAR = /home/yli4/downloads/STAR/STAR-STAR_2.4.2a/source/STAR
+Picard = /home/yli4/downloads/picard/picard-tools-1.138/picard.jar
+samtools = samtools
+GATK = /home/yli4/downloads/GATK/nightly-2015-09-11/GenomeAnalysisTK.jar
+#vcf2annovar = vcf2annovar.pl
+
+# running parameters
+runThreadN = 35
+junction_min_uniq_reads = 2		# minimum number of uniquely-mapped reads required for novel splice junctions
+
