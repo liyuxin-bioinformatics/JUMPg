@@ -1,4 +1,4 @@
-# JUMPg (JUMProteogenomics) parameter file (Version: 2.2, Date: 01/05/2016)
+# JUMPg (JUMProteogenomics) parameter file (Version: 2.3, Date: 01/05/2016)
 
 # general parameters
 output_directory = stage2								# add a suffix to output base names; prefix always = 'gnm_'
