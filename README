@@ -1,8 +1,17 @@
 ----------------------
+Introduction
+----------------------
+
+JUMPg is a proteogenomics software pipeline for analyzing large mass spectrometry (MS) and functional genomics datasets. The pipeline includes customized database building, tag-based database search, peptide-spectrum match filtering, and data visualization. The program is written in perl and is designed for high performance parallel computing systems. 
+ 
+For more information, please read: Li et al., JUMPg: an integrative proteogenomics pipeline identifying unannotated proteins in human brain and cancer cells. J. Proteome Res., 15 (2016), pp. 2309–2320
+
+----------------------
 Contents of this file
 ----------------------
 
 * Introduction
+* Release notes
 * Software Requirements
 * Hardware Requirements
 * Installation
@@ -10,11 +19,16 @@ Contents of this file
 * Maintainers
 
 ----------------------
-Introduction
+Release notes
 ----------------------
 
-JUMPg is a proteogenomics software pipeline for analyzing large mass spectrometry (MS) and functional genomics datasets. The pipeline includes customized database building, tag-based database search, peptide-spectrum match filtering, and data visualization. The program is written in perl and is designed for high performance parallel computing systems. 
- 
+Version 2.3.6:
+* Fixed a bug that cause program to crash when the program is used in Ubuntu system.
+* Use the latest JUMP search engine (thanks to Xusheng and Ji-Hoon).
+* During the 2nd stage search, some PSMs may be missed during database search because of inaccurate file calculation. This error is fixed.
+* Previous version failed to generate the BED file for mutation peptides. This error is fixed.
+* The PSM filtering function previously relied on a local version of clone.pm, but may lead to crash when a local clone.pm file was found with a differnt version. Now the local dependence was removed and this error should be fixed.
+
 ----------------------
 Software Requirements
 ---------------------- 
@@ -62,7 +76,7 @@ INSTALLATION:
 -step 0: unzip the source code and test data packages in the current directory by running the following commands:
 
 unzip JUMPg_v2.3.1.zip (already unzipped if downloaded from github)
-unzip exampleData_v6.1.zip
+unzip exampleData_v6.2.zip
 
 -Step 1: set up module and program paths by running the following commands:
 
@@ -94,9 +108,9 @@ cat *.fa > hg19_genome_raw.fa
 
 -Step 4: (Optional but recommended) update uniProt-UCSC ID convertion table based on pairwise sequence alignment. 
 
-For human, an updated uniProt-UCSC ID convertion table (named 'ID_convert_uniProt2UCSChg19.txt') is available in the exampleData_v6.1/ folder. This table is used to correct the UCSC downloaded table, using the following command:
+For human, an updated uniProt-UCSC ID convertion table (named 'ID_convert_uniProt2UCSChg19.txt') is available in the exampleData_v6.2/ folder. This table is used to correct the UCSC downloaded table, using the following command:
 
-perl tools/updateIdTab.pl annotations/human/hg19_kgXref.txt exampleData_v6.1/resources/ID_convert_uniProt2UCSChg19.txt
+perl tools/updateIdTab.pl annotations/human/hg19_kgXref.txt exampleData_v6.2/resources/ID_convert_uniProt2UCSChg19.txt
 
 
 ----------------------
@@ -111,7 +125,7 @@ Besides MS data, the program takes up to three types of genomics/NGS data as inp
 2) For building the junction peptide database: a splice junction file reported by STAR (or with equivalent format) is required.
 3) For building the RNA 6FT database: RNA nucleotide sequences in FASTQ format is required (can be either de novo assemebled transcripts or reference mRNA sequences).
 
-Users can find example input files in exampleData_v6.1.tar.gz (within the rna_database/ folder).
+Users can find example input files in exampleData_v6.2.tar.gz (within the rna_database/ folder).
 
 If users process the data from RNA-seq raw reads, to assist the input file preparation process, a wrapper (called 'RNAseq_preprocess.pl' located in the tools/ folder) is provided that contains RNAseq alignment (by STAR), mutation detection (by GATK), and novel splice junction filtering. 
 
@@ -149,18 +163,18 @@ Since the program supports multistage database search analysis, we have designed
 
 1) 1st stage analysis:
 
--Step 1: cp 'jump_g_v2.2.stage1.params' (included in exampleData_v6.1/parameters folder) to your working directory and edit the following parameters:
+-Step 1: cp 'jump_g_v2.2.stage1.params' (included in exampleData_v6.2/parameters folder) to your working directory and edit the following parameters:
 
 The following assumes that your working directory is at "/home/usr/JUMPg"
 
-  a) input_ref_proteins = /home/usr/JUMPg/exampleData_v6.1/uniProt/reference_uniProt_human.fasta
-  b) input_mutation = /home/usr/JUMPg/exampleData_v6.1/rna_database/mutations.txt
-  c) input_junction = /home/usr/JUMPg/exampleData_v6.1/rna_database/junctions.txt
+  a) input_ref_proteins = /home/usr/JUMPg/exampleData_v6.2/uniProt/reference_uniProt_human.fasta
+  b) input_mutation = /home/usr/JUMPg/exampleData_v6.2/rna_database/mutations.txt
+  c) input_junction = /home/usr/JUMPg/exampleData_v6.2/rna_database/junctions.txt
   d) annovar_annotation_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_knownGene.txt
   e) gene_ID_convert_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_kgXref.txt
   f) reference_genome = /home/usr/genomes/hg19_genome_raw.fa
 
--Step 2: cp spectra file 'exampleData_v6.1/spectra/MS_test.mzXML' (included in exampleData_v6.1.tar.gz) to your working diredirectory and run the program using the following command:
+-Step 2: cp spectra file 'exampleData_v6.2/spectra/MS_test.mzXML' (included in exampleData_v6.2.tar.gz) to your working diredirectory and run the program using the following command:
 
 perl /home/usr/JUMPg_v2.3.1/programs/JUMPg_v2.3.1.pl jump_g_v2.2.stage1.params MS_test.mzXML
 
@@ -176,12 +190,12 @@ For multistage analysis, the program also generates the unmatched high quality M
 
 2) 2nd stage analysis:
 
--Step 1: cp 'jump_g_v2.2.stage2.params' (included in exampleData_v6.1/parameters) to your working directory and edit the following parameters:
-  a) input_transcript_6FT = /home/usr/JUMPg/exampleData_v6.1/rna_database/assembled_transcripts.fasta
+-Step 1: cp 'jump_g_v2.2.stage2.params' (included in exampleData_v6.2/parameters) to your working directory and edit the following parameters:
+  a) input_transcript_6FT = /home/usr/JUMPg/exampleData_v6.2/rna_database/assembled_transcripts.fasta
   b) annovar_annotation_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_knownGene.txt
   c) gene_ID_convert_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_kgXref.txt
   d) reference_genome = /home/usr/genomes/hg19_genome_raw.fa
-  f) reference_protein = /home/usr/JUMPg/exampleData_v6.1/uniProt/reference_uniProt_human.fasta
+  f) reference_protein = /home/usr/JUMPg/exampleData_v6.2/uniProt/reference_uniProt_human.fasta
 
 -Step 2: copy qc_MSMS_input.txt (that records the path to unmatched high quality MS/MS spectra) to current directory:
 
