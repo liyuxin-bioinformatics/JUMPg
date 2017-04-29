@@ -4,11 +4,7 @@ Introduction
 
 JUMPg is a proteogenomics software pipeline for analyzing large mass spectrometry (MS) and functional genomics datasets. The pipeline includes customized database building, tag-based database search, peptide-spectrum match filtering, and data visualization. The program is written in perl and is designed for high performance parallel computing systems. 
  
-<<<<<<< HEAD
-For more information, please read: Li et al., JUMPg: an integrative proteogenomics pipeline identifying unannotated proteins in human brain and cancer cells. J. Proteome Res., 15 (2016), pp. 2309.2320
-=======
 For more information, please read: Li et al., JUMPg: an integrative proteogenomics pipeline identifying unannotated proteins in human brain and cancer cells. J. Proteome Res., 15 (2016), pp. 2309–2320
->>>>>>> origin/master
 
 ----------------------
 Contents of this file
@@ -31,10 +27,7 @@ Version 2.3.6:
 * Use the latest JUMP search engine (thanks to Xusheng and Ji-Hoon).
 * During the 2nd stage search, some PSMs may be missed during database search because of inaccurate file calculation. This error is fixed.
 * Previous version failed to generate the BED file for mutation peptides. This error is fixed.
-<<<<<<< HEAD
-=======
 * The PSM filtering function previously relied on a local version of clone.pm, but may lead to crash when a local clone.pm file was found with a differnt version. Now the local dependence was removed and this error should be fixed.
->>>>>>> origin/master
 
 ----------------------
 Software Requirements
