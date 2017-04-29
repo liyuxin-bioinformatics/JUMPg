@@ -6,7 +6,7 @@
 setwd(inputDirectory);
         #suppressPackageStartupMessages(suppressWarnings(library(tcltk)))
         library(MASS);
-        library(qvalue);
+        #library(qvalue);
         #search_engine=\$search_engine;
         ## Data loading
         #table5rows = read.table(inputFile, sep = "\t", header = T, nrows = 5);
@@ -80,7 +80,8 @@ H0 = fitdistr(scores[group == "decoy"], "normal");
                                 p = 1 - pnorm(scores, mean = H0$estimate[1], sd = H0$estimate[2]);
                                 pval[subInd] = p;
                                 ## Calculate q-values and FDR (Benjamini-Hochberg)
-                                qval[subInd] = qvalue(p)$qvalue;
+                                #qval[subInd] = qvalue(p)$qvalue;
+                                qval[subInd] = 1;
                                 fdr[subInd] = p.adjust(p, method = "BH");
                         } else {
                                 pval[subInd] = 1;

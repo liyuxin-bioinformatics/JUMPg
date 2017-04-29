@@ -3,9 +3,9 @@
 use strict;
 use warnings;
 
-if (scalar(@ARGV)!=3)
+if (scalar(@ARGV)!=4)
 {
-	die "perl IDtxt2BED.pl ID.txt trackName out\n";
+	die "perl IDtxt2BED.pl ID.txt trackName out annotationFile\n";
 }
 
 my $trackName=$ARGV[1];
@@ -13,7 +13,8 @@ my $trackName=$ARGV[1];
 # build %prohash
 my (%prohash);
 #open(IN,'/home/yli4/annotations/refSeq_mRNA2protein_072514.txt') or die "Cannot open annotatiion file!!!\n";
-open(IN,'/home/yli4/annotations/hg19_knownGenes_112713.txt') or die "Cannot open annotatiion file!!!\n";
+#open(IN,'/home/yli4/annotations/hg19_knownGenes_112713.txt') or die "Cannot open annotatiion file!!!\n";
+open(IN,$ARGV[3]) or die "Cannot open annotatiion file!!!\n";
 while(<IN>)
 {
 	next if (/^#/);

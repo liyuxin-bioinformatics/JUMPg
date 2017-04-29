@@ -1,4 +1,4 @@
-#!/usr/bin/perl  -I /home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/s
+#!/usr/bin/perl  -I /home/yli4/development/JUMPg/JUMPg_v2.3.6/programs/s
 
 ## Release date: 7/01/2016
 ## Release version: version 12.1.3
@@ -1044,11 +1044,13 @@ sub database_creation
 			Check_Job_stat("sort_",$num_mass_region);
 		} elsif($params->{'cluster'} eq '0') {
 			my $pm;
+			$MAX_PROCESSES=defined($params->{'processors_used'})?$params->{'processors_used'}:4;
+			my $k=$MAX_PROCESSES;
 			if (defined($params->{'digestion'}) and $params->{'digestion'} eq 'partial') {
-				my $k=int($MAX_PROCESSES/10)+1;
-			} else {
-				my $k=int($MAX_PROCESSES/2)+1;
-			}
+				$k=int($MAX_PROCESSES/10)+1;
+			} #else {
+			#	$k=int($MAX_PROCESSES/2)+1;
+			#}
 			$pm = new Parallel::ForkManager($k); # the sorting usually requires large memory
 			for($m=0;$m<$num_mass_region;$m++) {
 				my $dta_path=$tmp_database_path;
@@ -1065,23 +1067,28 @@ sub database_creation
 		#Merge all the files
 		print "\n  Mergering files\n";
 		my $merge_job_num = $num_mass_region-1;
+		my $dta_path=$tmp_database_path;
 
 		if ($params->{'cluster'} eq '1') {
-			my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";
+			#my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";
+			my $cmd = "for i in \$(seq 0 1 $merge_job_num) \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";
 			my $FileName = "$tmp_database_path/merge_mass_index.sh";
 			LuchParallelJob($FileName,$cmd,$params->{'Job_Management_System'},"merge_mass_index",$tmp_database_path);		
-			$cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
+			#$cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
+			$cmd = "for i in \$(seq 0 1 $merge_job_num) \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
 			$FileName = "$tmp_database_path/merge_peptide_index.sh";
 			LuchParallelJob($FileName,$cmd,$params->{'Job_Management_System'},"merge_peptide_index",$tmp_database_path);
 		} elsif($params->{'cluster'} eq '0') {
-			my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";	
+			#my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";	
+			my $cmd = "for i in \$(seq 0 1 $merge_job_num) \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";	
 			my $FileName = "$tmp_database_path/merge_mass_index.sh";
 			open(JOB,">$FileName") || die "can not open $FileName\n";
 			print JOB "$cmd >$dta_path/merge_mass_index.o 2>$dta_path/merge_mass_index.e";
 			close(JOB);
 			system(qq(sh $FileName >/dev/null 2>&1));
 
-			my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
+			#my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
+			my $cmd = "for i in \$(seq 0 1 $merge_job_num) \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
 			$FileName = "$tmp_database_path/merge_peptide_index.sh";
 			open(JOB,">$FileName") || die "can not open $FileName\n";
 			print JOB "$cmd  >$dta_path/merge_peptide_index.o 2>$dta_path/merge_peptide_index.e";

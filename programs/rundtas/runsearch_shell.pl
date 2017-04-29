@@ -1,4 +1,4 @@
-#!/usr/bin/perl  -I /home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/s
+#!/usr/bin/perl  -I /home/yli4/development/JUMPg/JUMPg_v2.3.6/programs/s
 use Getopt::Long;
 
 #use Cwd 'abs_path';

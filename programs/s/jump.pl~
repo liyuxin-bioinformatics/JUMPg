@@ -1,4 +1,4 @@
-#!/usr/bin/perl  -I /data1/pipeline/release/version12.1.0/JUMPsj/
+#!/usr/bin/perl  -I /home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/s
 
 ## Release date: 7/01/2016
 ## Release version: version 12.1.3
@@ -51,7 +51,7 @@ print <<EOF;
 #       **************************************************     #
 #       ****                                          ****     #
 #       ****  jump search using JUMP                  ****     # 
-#       ****  Version $VERSION	                      ****     #
+#       ****  Version 12.1.3	                      ****     #
 #       ****  Copyright (C) 2012 - 2015               ****     #
 #       ****  All rights reserved                     ****     #
 #       ****                                          ****     #
@@ -238,8 +238,6 @@ foreach my $raw_file(sort keys %rawfile_hash)
 	########################## Start Searching #######################################
 	print "  Starting database searching\n";
 
-
-
 	my $job = new Spiders::Job;
 	$job->set_library_path($library);		
 	$job->set_dta_path("$dta_path");
@@ -258,17 +256,19 @@ foreach my $raw_file(sort keys %rawfile_hash)
 	{
 		print "  Please specify a right second_search parameter!!\n";
 	}
-	my $temp_file_array=runjobs(\@file_array,$dta_path,"sch_${random}");
+	my $temp_file_array=runjobs(\@file_array,$dta_path,"sch_${random}",$params->{'processors_used'});
 	my $rerunN=0;
+	my $orig_cluster=$params->{'cluster'};
 	while(scalar(@{$temp_file_array})>0 and $rerunN<3)
 	{
 		$rerunN++;
 		print "\n",scalar(@$temp_file_array)," .dta files not finished! Doing re-search (rerunN = $rerunN)\n";
-		#$params->{'cluster'} = 0;
-		my $remaining=runjobs($temp_file_array,$dta_path,"rescue_$rerunN");
+		$params->{'cluster'} = 0;
+		my $remaining=runjobs($temp_file_array,$dta_path,"rescue_$rerunN",$params->{'processors_used'});
 
 		$temp_file_array=$remaining;
 	}
+	$params->{'cluster'} = $orig_cluster;
 	if(scalar(@{$temp_file_array})>0)
 	{
 		#die "\n",scalar(@$temp_file_array)," .dta files not finished!\n";
@@ -309,6 +309,8 @@ foreach my $raw_file(sort keys %rawfile_hash)
 	print "  Generating dtas file\n";
 	system(qq(cat $dta_path/*.dtas > $dta_path.dtas));      # make one dtas
 	system(qq(rm $dta_path/*.dtas));        # delete job-specific dtas
+	print "  Generating tags file\n";
+	make_tags($dta_path,"$dta_path\.tags");
 	print "  Generating pepXML file\n";
 	my $spout=Spiders::SpoutParser->new();
 
@@ -358,9 +360,10 @@ sub Create_Sort_BashFile
 
 sub runjobs
 {
-	my ($file_array,$dta_path,$job_name) = @_;
+	my ($file_array,$dta_path,$job_name,$MAX_PROCESSES) = @_;
 	my $curr_dir = getcwd;
-	my $MAX_PROCESSES = 32;	
+	#my $MAX_PROCESSES = 32;	
+	$MAX_PROCESSES = defined($MAX_PROCESSES)?$MAX_PROCESSES:4;
 
 	my $dta_num_per_file = 10;
 	my $job_num = int($#$file_array / $dta_num_per_file) + 1;
@@ -484,7 +487,7 @@ sub runjobs
 	}
 	elsif($params->{'cluster'} eq '0')
 	{
-
+	print "Only use headmaster to run jobs (MAX_PROCESSES = $MAX_PROCESSES)\n";
         my $pm = new Parallel::ForkManager($MAX_PROCESSES);
         for my $i ( 0 .. $MAX_PROCESSES )
         {
@@ -571,7 +574,15 @@ sub LuchParallelJob{
 		print JOB "#\$ \-o $dta_path/$outputName.o\n";
 		print JOB $cmd;
 		close(JOB);
-		system(qq(qsub -cwd -cwd -pe mpi 8 -l mem_free=16G,h_vmem=16G $FileName >/dev/null 2>&1));
+		if (defined($params->{'digestion'}) and $params->{'digestion'} eq 'partial')
+		{
+			system(qq(qsub -cwd -cwd -pe mpi 64 -l mem_free=100G,h_vmem=100G $FileName >/dev/null 2>&1));
+		}
+		else
+		{
+			system(qq(qsub -cwd -cwd -pe mpi 8 -l mem_free=16G,h_vmem=16G $FileName >/dev/null 2>&1));
+		}
+		#system(qq(qsub -cwd -cwd -pe mpi 8 -l mem_free=16G,h_vmem=16G $FileName >/dev/null 2>&1));
 	}
 	if($GridType eq 'PBS')
 	{
@@ -841,8 +852,13 @@ sub database_creation
 		}		
 		close(FASTA);
 		
-	#	my $num_protein_per_job = int(4000/($num_dynamic_mod));
-		my $num_protein_per_job = int($total_protein_number/(200*$num_dynamic_mod))+1;
+		my $num_protein_per_job;
+		#my $num_protein_per_job = int($total_protein_number/(200*$num_dynamic_mod))+1;
+		if ($total_protein_number>2000) {
+			$num_protein_per_job = int($total_protein_number/(200*$num_dynamic_mod))+1; # v12 statement (for regular database, e.g., human proteome)
+		} else {
+			$num_protein_per_job = int($total_protein_number/(5*$num_dynamic_mod))+1; # for small test
+		}
 
 		my $protein_num=0;
 		my $k=0;
@@ -886,6 +902,7 @@ sub database_creation
 		for($i=1;$i<=$job_num;$i++)
 		{
 			open(JOB,">$tmp_database_path/job_db_$i.sh") || die "can not open the job db files\n";
+			if($params->{'cluster'} eq '1') {
 			if($params->{'Job_Management_System'} eq 'LSF')
 			{
 				print JOB "#BSUB -P prot\n";
@@ -897,7 +914,7 @@ sub database_creation
 				print JOB "perl $tmp_database_path/create_db.pl $tmp_database_path/temp_${i}_${database_basename}\n";
 				print JOB "rm -f $tmp_database_path/temp_${i}_${database_basename}";
 				close(JOB);
-				system(qq(cd $tmp_database_path && bsub <job_db_$i.sh >/dev/null 2>&1));	
+				#system(qq(cd $tmp_database_path && bsub <job_db_$i.sh >/dev/null 2>&1));	
 				
 			}
 			if($params->{'Job_Management_System'} eq 'SGE')
@@ -909,14 +926,40 @@ sub database_creation
 				print JOB "perl $tmp_database_path/create_db.pl $tmp_database_path/temp_${i}_${database_basename}\n";
 				print JOB "rm -rf $tmp_database_path/temp_${i}_${database_basename}\n";
 				close(JOB);
-				system(qq(qsub -cwd -pe mpi 8 -l mem_free=16G,h_vmem=16G "$tmp_database_path/job_db_$i.sh" >/dev/null 2>&1));
+				#system(qq(qsub -cwd -pe mpi 8 -l mem_free=16G,h_vmem=16G "$tmp_database_path/job_db_$i.sh" >/dev/null 2>&1));
+			}
+			} else {
+				print JOB "perl $tmp_database_path/create_db.pl $tmp_database_path/temp_${i}_${database_basename} >$tmp_database_path/$i.o 2>$tmp_database_path/$i.e\n";
+				print JOB "rm -rf $tmp_database_path/temp_${i}_${database_basename}\n";
 			}
 			close(JOB);
 		}
+
+		my ($MAX_PROCESSES);
+
+		# submit jobs
+		if($params->{'cluster'} eq '1') {
+			if($params->{'Job_Management_System'} eq 'LSF') {
+			} elsif($params->{'Job_Management_System'} eq 'SGE') {
+				for($i=1;$i<=$job_num;$i++) {
+					system(qq(qsub -cwd -pe mpi 8 -l mem_free=16G,h_vmem=16G "$tmp_database_path/job_db_$i.sh" >/dev/null 2>&1));
+				}
+			}
 		
 		print "  You submit $job_num jobs for creating index files\n";
 		
 		Check_Job_stat("job_db_",$job_num);
+		} elsif($params->{'cluster'} eq '0') {
+			$MAX_PROCESSES=defined($params->{'processors_used'})?$params->{'processors_used'}:4;
+			my $pm = new Parallel::ForkManager($MAX_PROCESSES);
+			for my $i ( 1 .. $job_num ) {
+				$pm->start and next;
+				system(qq(sh $tmp_database_path/job_db_$i.sh >/dev/null 2>&1));
+				print "\r  $i jobs were submitted";
+				$pm->finish;
+			}
+			$pm->wait_all_children;
+		}
 
 	###### Merge all temp_ files into big data file #######################
 		
@@ -934,7 +977,128 @@ sub database_creation
 		my $tmp_mass_index = "$tmp_database_path/$database_basename" . ".mdx";
 		my $tmp_peptide_index = "$tmp_database_path/$database_basename" . ".pdx";
 		my $tmp_protein_index = "$tmp_database_path/$database_basename" . ".prdx";
-		
+		for($m=0;$m<$num_mass_region;$m++)
+		{ 		
+			
+			my ($mass_hash,$peptide_hash,$protein_hash);	
+			#create bash files
+			my $Params = {'range'=> $m,				
+							  'GridType'=> $params->{'Job_Management_System'},
+							  'JobNum'=>$job_num,
+							  'database_path'=> $tmp_database_path,
+							  'dta_path'=> $tmp_database_path,
+							  'mass_index'=>  $tmp_mass_index.".$m",
+							  'peptide_index'=> $tmp_peptide_index.".$m",
+							  'protein_index'=> $protein_index,
+							   'databasename'=> $database_basename,
+							   'num_pro_per_job'=>$num_protein_per_job,
+							   'prot_job_num'=>$prot_job_num,
+							   'digestion'=>$digestion,
+							   };
+							   
+
+										
+			my $dta_path=$tmp_database_path;
+			my $FileName = "$dta_path/sort_db_".$Params->{"range"}.".sh"; #print "$FileName\n";
+			my $cmd = join(" ","perl $dta_path/Create_Partial_Idx.pl -m",$Params->{"range"},"-job_num",$Params->{"JobNum"},"-dta_path",$dta_path,"-database_path",$dta_path,"-mass_index",$Params->{"mass_index"},"-peptide_index", $Params->{"peptide_index"},"-protein_index",$Params->{"protein_index"},"-databasename",$Params->{"databasename"},"-num_pro_per_job",$Params->{"num_pro_per_job"},"-prot_job_num",$Params->{"prot_job_num"},"-digestion",$Params->{"digestion"},"\n");
+			
+			my $outputName="sort_db_".$Params->{"range"};
+
+			open(JOB,">$FileName") || die "can not open $FileName\n";
+
+			if ($params->{'cluster'} eq '1') {
+				if($params->{'Job_Management_System'} eq 'LSF') {
+				} elsif($params->{'Job_Management_System'} eq 'SGE') {
+					print JOB "#!/bin/bash\n";
+					print JOB "#\$ \-S /bin/bash\n";
+					print JOB "#\$ \-N $outputName\n";
+					print JOB "#\$ \-e $dta_path/$outputName.e\n";
+					print JOB "#\$ \-o $dta_path/$outputName.o\n";
+					print JOB $cmd;
+				}
+			} elsif($params->{'cluster'} eq '0') {
+				print JOB "#!/bin/bash\n";
+				print JOB "$cmd >$dta_path/$outputName.o 2>$dta_path/$outputName.e";
+			}
+
+			close JOB;
+		}
+
+		if ($params->{'cluster'} eq '1') {
+
+			if($params->{'Job_Management_System'} eq 'LSF') {
+			} elsif($params->{'Job_Management_System'} eq 'SGE') {
+				for($m=0;$m<$num_mass_region;$m++) {
+					my $dta_path=$tmp_database_path;
+					my $FileName = "$dta_path/sort_db_".$m.".sh";
+					if (defined($params->{'digestion'}) and $params->{'digestion'} eq 'partial') {
+						system(qq(qsub -cwd -cwd -pe mpi 64 -l mem_free=100G,h_vmem=100G $FileName >/dev/null 2>&1));
+					} else {
+						system(qq(qsub -cwd -cwd -pe mpi 8 -l mem_free=16G,h_vmem=16G $FileName >/dev/null 2>&1));
+					}
+				}
+			}
+
+			print "  You submit $num_mass_region jobs for sorting index files\n";
+			
+			Check_Job_stat("sort_",$num_mass_region);
+		} elsif($params->{'cluster'} eq '0') {
+			my $pm;
+			$MAX_PROCESSES=defined($params->{'processors_used'})?$params->{'processors_used'}:4;
+			if (defined($params->{'digestion'}) and $params->{'digestion'} eq 'partial') {
+				my $k=int($MAX_PROCESSES/10)+1;
+			} else {
+				my $k=int($MAX_PROCESSES/2)+1;
+			}
+			$pm = new Parallel::ForkManager($k); # the sorting usually requires large memory
+			for($m=0;$m<$num_mass_region;$m++) {
+				my $dta_path=$tmp_database_path;
+				my $FileName = "$dta_path/sort_db_".$m.".sh";
+				$pm->start and next;
+				system(qq(sh $FileName >/dev/null 2>&1));
+				$pm->finish;
+			}
+			$pm->wait_all_children;
+		}
+		print "  $num_mass_region jobs finished";
+
+
+		#Merge all the files
+		print "\n  Mergering files\n";
+		my $merge_job_num = $num_mass_region-1;
+		my $dta_path=$tmp_database_path;
+
+		if ($params->{'cluster'} eq '1') {
+			#my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";
+			my $cmd = "for i in \$(seq 0 1 $merge_job_num) \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";
+			my $FileName = "$tmp_database_path/merge_mass_index.sh";
+			LuchParallelJob($FileName,$cmd,$params->{'Job_Management_System'},"merge_mass_index",$tmp_database_path);		
+			#$cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
+			$cmd = "for i in \$(seq 0 1 $merge_job_num) \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
+			$FileName = "$tmp_database_path/merge_peptide_index.sh";
+			LuchParallelJob($FileName,$cmd,$params->{'Job_Management_System'},"merge_peptide_index",$tmp_database_path);
+		} elsif($params->{'cluster'} eq '0') {
+			#my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";	
+			my $cmd = "for i in \$(seq 0 1 $merge_job_num) \n do\n cat $tmp_mass_index.".'$i'." >> $mass_index\n done\n";	
+			my $FileName = "$tmp_database_path/merge_mass_index.sh";
+			open(JOB,">$FileName") || die "can not open $FileName\n";
+			print JOB "$cmd >$dta_path/merge_mass_index.o 2>$dta_path/merge_mass_index.e";
+			close(JOB);
+			system(qq(sh $FileName >/dev/null 2>&1));
+
+			#my $cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
+			my $cmd = "for i in \$(seq 0 1 $merge_job_num) \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
+			$FileName = "$tmp_database_path/merge_peptide_index.sh";
+			open(JOB,">$FileName") || die "can not open $FileName\n";
+			print JOB "$cmd  >$dta_path/merge_peptide_index.o 2>$dta_path/merge_peptide_index.e";
+			close(JOB);
+			system(qq(sh $FileName >/dev/null 2>&1));
+
+			
+		}
+
+# to implement standalone version, old code deactiavted by Yuxin on 9/6/16
+=head		
 		for($m=0;$m<$num_mass_region;$m++)
 		{ 		
 			#print $m,"\n";
@@ -961,6 +1125,8 @@ sub database_creation
 		#Waint For the jobs until they get finished
 		Check_Job_stat("sort_",$num_mass_region);
 		print "  $num_mass_region jobs finished";		
+
+
 		#Merge all the files		
 		print "\n  Mergering files\n";
 		my $merge_job_num = $num_mass_region-1;
@@ -971,6 +1137,7 @@ sub database_creation
 		$cmd = "for i in {0..$merge_job_num} \n do\n cat $tmp_peptide_index.".'$i'." >> $peptide_index\n done\n";
 		$FileName = "$tmp_database_path/merge_peptide_index.sh";
 		LuchParallelJob($FileName,$cmd,$params->{'Job_Management_System'},"merge_peptide_index",$tmp_database_path);
+=cut
 		
 	### create a script to sum the numbers #############	
 		my @summaryfiles=();
@@ -994,7 +1161,10 @@ sub database_creation
 	#	system(qq(mv $tmp_database_path/$peptide_index $database_path/$peptide_index >/dev/null 2>&1));
 	#	system(qq(mv $tmp_database_path/$protein_index $database_path/$protein_index >/dev/null 2>&1));		
 	#	system(qq(mv $tmp_database_path/$outfile $database_path/$outfile >/dev/null 2>&1));
-		system(qq(rm -rf $tmp_database_path >/dev/null 2>&1));
+	#	system(qq(rm -rf $tmp_database_path >/dev/null 2>&1));
+		if (defined($params->{'temp_file_removal'}) and $params->{'temp_file_removal'}==1) {
+			system(qq(rm -rf $tmp_database_path >/dev/null 2>&1)); # deactivated for debug
+		}
 				
 		print "  Database creation completed\n";
 	}		
@@ -1084,6 +1254,36 @@ sub delete_run_dir
 	system(qq(rm -rf $tmp > /dev/null 2>&1));
 }
 
+
+sub make_tags
+{
+	my ($dta_path,$output)=@_;
+	my @tagfile = glob("$dta_path\/\*.tag");
+	open(OUT,">$output");
+        my $k=0;
+        my $tt=scalar(@tagfile);
+        foreach my $tag (@tagfile)
+        {
+                $k++;
+                print "\r  collecting $k out of $tt tag files";
+
+                my @t=split /\//,$tag;
+                $tag=$t[$#t];
+
+                print OUT "$tag\n";
+
+                my $fullpath="$dta_path\/$tag";
+                open(IN,$fullpath) or die "cannot open $fullpath";
+                my @lines=<IN>;
+                close IN;
+
+                for (my $i=0; $i<=$#lines;$i++) { print OUT "$lines[$i]"; }
+        }
+        close OUT;
+        print "\n";
+}
+
+
 sub usage {
 
 print <<"EOF";
@@ -1093,7 +1293,7 @@ print <<"EOF";
 #       **************************************************     #
 #       ****                                          ****     #
 #       ****  jump search using JUMP                  ****     # 
-#       ****  Version 12.1.0                          ****     #
+#       ****  Version 12.1.3                          ****     #
 #       ****  Copyright (C) 2012 - 2015               ****     #
 #       ****  All rights reserved                     ****     #
 #       ****                                          ****     #

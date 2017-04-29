@@ -1,4 +1,4 @@
-#!/usr/bin/perl -I /home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/g
+#!/usr/bin/perl -I /home/yli4/development/JUMPg/JUMPg_v2.3.6/programs/g
 
 use strict;
 use warnings;
@@ -13,7 +13,7 @@ if (scalar(@ARGV)!=1)
 }
 
 # code path
-my $code_path="/home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/pa";
+my $code_path="/home/yli4/development/JUMPg/JUMPg_v2.3.6/programs/pa";
 #my $annotationFile2='/home/yli4/annotations/knownGenes_uniPro_012314.txt';
 
 #initialization
@@ -260,6 +260,7 @@ sub run_mutation
 	#my $output=$$parahash{output_folder};
 	my $output='mutation';
 	my $trackName=$$parahash{track_name};
+	my $annotationFile=$$parahash{annovar_annotation_file};
 
 	#print "Running mutation mode:\n";
 	print "Annotating mutation peptides ...\n";
@@ -268,7 +269,7 @@ sub run_mutation
 	system(qq(cd $$parahash{output_folder} && perl $mut_path/consolidate_IDtxt2SNV.pl $core_file_name.seqpad.ref.fas $core_file_name.seqpad.mut.fas $IDtxt $output));
 	# visulization
 	system(qq(cd $$parahash{output_folder} && perl $mut_path/acpMut_IDtxt.pl $output\_pep.txt ID_posCheck.txt > valideted_ID.txt));
-	system(qq(cd $$parahash{output_folder} && perl $mut_path/IDtxt2BED_mut_ucscVersion.pl valideted_ID.txt $trackName $output\_peptides.bed));
+	system(qq(cd $$parahash{output_folder} && perl $mut_path/IDtxt2BED_mut_ucscVersion.pl valideted_ID.txt $trackName $output\_peptides.bed $annotationFile));
 	system(qq(cd $$parahash{output_folder} && perl $mut_path/scanCounts_BED.pl $output\_peptides.bed > $output\_peptides.sc.bed));
 	system(qq(cd $$parahash{output_folder} && perl $mut_path/pgSnp.pl $output\_mut_all.txt > $output\_mut_all.pgSnp));
 }

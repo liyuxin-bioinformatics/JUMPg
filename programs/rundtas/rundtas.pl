@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w -I /home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/s 
+#!/usr/bin/perl -w -I /home/yli4/development/JUMPg/JUMPg_v2.3.6/programs/s 
 
 use strict;
 #use outFileParser;
@@ -15,7 +15,7 @@ if (scalar(@ARGV)!=2)
 # program path
 #my $currectDir=getcwd;
 #$runsearch_shell="$currectDir/runsearch_shell.pl";
-my $runsearch_shell="/home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/rundtas/runsearch_shell.pl";
+my $runsearch_shell="/home/yli4/development/JUMPg/JUMPg_v2.3.6/programs/rundtas/runsearch_shell.pl";
 
 #initialization
 my (%parahash);
@@ -49,10 +49,12 @@ foreach my $run (sort keys %{$parahash{'runs'}})
 		my $random = int(rand(100));
 		#my $temp_file_array=runjobs(\@file_array,$dta_path,"sch_${random}");
 		my ($done,$temp_file_array)=runjobs(\@file_array,$dta_path,"sch_${random}");
+		#$done=1; # some scans will never generate spout if no candidate peptide exist (?)
 
 		# re-run for 'missed' dta files (e.g., due to dead nodes)
 		my $rerunN=0;
 		while($done==0 and $rerunN<3)
+		#while($done==0 and $rerunN<10)
 		{
 			$rerunN++;
 			print "\n  ",scalar(@$temp_file_array)," .dta files not finished! Doing re-search (rerunN = $rerunN)\n";
@@ -509,7 +511,8 @@ sub runjobs
 	system("cp $runsearch_shell $dta_path");
         #my $curr_dir = getcwd;
 	chomp(my $curr_dir = `pwd`);
-        my $MAX_PROCESSES = 10;
+        #my $MAX_PROCESSES = 10;
+        my $MAX_PROCESSES = $parahash{'processors_used'};
 
 	my ($job_num,$dta_num_per_file);
 	#if ( defined($parahash{use_existed_tag}) and $parahash{use_existed_tag}==1 )
@@ -597,7 +600,8 @@ sub runjobs
 	elsif($parahash{'cluster'} eq '0')
 	{
 		my $pm = new Parallel::ForkManager($MAX_PROCESSES);
-		for my $i ( 0 .. $MAX_PROCESSES )
+		#for my $i ( 0 .. $MAX_PROCESSES )
+		for my $i ( 0 .. ($job_num-1) )
 		{
 			$pm->start and next;
 			my $job_name = "${job_name}_${i}.sh";

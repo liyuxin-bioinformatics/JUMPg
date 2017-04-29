@@ -1,7 +1,7 @@
-#!/usr/bin/perl -I /home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/g
+#!/usr/bin/perl -I /home/yli4/development/JUMPg/JUMPg_v2.3.6/programs/g
 
 ## Created: 08/14/2015
-my $VERSION='2.3.5';
+my $VERSION='2.3.6';
 
 use strict;
 use warnings;
@@ -196,7 +196,7 @@ if (!defined($parahash{bypass_database_search}) or $parahash{bypass_database_sea
 		system(qq(cd $output_dir && perl $parahash{'programs'}{s} -p $parahash{'params'}{s} @ARGV));
 	} else {
 		system(qq(cp $ARGV[0] $output_dir));
-		system(qq(cd $output_dir && $parahash{'programs'}{rundtas} $parahash{'params'}{s} $ARGV[0]));
+		system(qq(cd $output_dir && perl $parahash{'programs'}{rundtas} $parahash{'params'}{s} $ARGV[0]));
 	}
 } else {
 	print "Bypass database search\n";
@@ -991,7 +991,7 @@ sub set_program_paths
 	my ($parahash)=@_;
 
 	#my $path='/home/yli4/development/JUMPg/v2.0/programs/';
-	my $path="/home/yli4/development/JUMPg/JUMPg_v2.3.5/programs";
+	my $path="/home/yli4/development/JUMPg/JUMPg_v2.3.6/programs";
 	#my $path=;
 	#my $path=aa";
 	$$parahash{'programs'}{params}="$path/params/jump_params.pl";

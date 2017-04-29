@@ -10,7 +10,7 @@ if (scalar(@ARGV)!=1)
 }
 
 # code path
-my $code_path="/home/yli4/development/JUMPg/JUMPg_v2.3.5/programs/c/customizedDB";
+my $code_path="/home/yli4/development/JUMPg/JUMPg_v2.3.6/programs/c/customizedDB";
 
 #initialization
 my (%parahash);
