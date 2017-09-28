@@ -84,12 +84,6 @@ cd programs
 perl path_setup.pl
 cd ..
 
--Step 1b: make programs executable:
-
-chmod a+x programs/pa/transcript_6FT/blat
-chmod a+x programs/s/jump.pl
-chmod a+x programs/f/jump_f.pl
-
 -Step 2: download AnnoVar annotation files by running the following commands (take human hg19 as an example):
 
 mkdir annotations
