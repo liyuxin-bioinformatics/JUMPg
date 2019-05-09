@@ -1,5 +1,5 @@
 ----------------------
-### Introduction
+Introduction
 ----------------------
 
 JUMPg is a proteogenomics software pipeline for analyzing large mass spectrometry (MS) and functional genomics datasets. The pipeline includes customized database building, tag-based database search, peptide-spectrum match filtering, and data visualization. The program is written in perl and is designed for high performance parallel computing systems. 
@@ -45,7 +45,7 @@ To install perl modules, please refer to:
 http://www.cpan.org/modules/INSTALL.html
 
 R module:
-MASS
+- MASS
 
 ----------------------
 Hardware Requirements
@@ -73,38 +73,32 @@ IMPORTANT: The folder containing all the source code needs to be accessible by e
 
 INSTALLATION:
 
-- step 0: unzip the source code and test data packages in the current directory by running the following commands:
+__step 0__: unzip the source code and test data packages in the current directory by running the following commands:
+ - unzip JUMPg_v2.3.1.zip (already unzipped if downloaded from github)
+ - unzip exampleData_v6.2.zip
 
-unzip JUMPg_v2.3.1.zip (already unzipped if downloaded from github)
-unzip exampleData_v6.2.zip
+__Step 1__: set up module and program paths by running the following commands:
+ - cd programs
+ - perl path_setup.pl
+ - cd ..
+ 
+__Step 2__: download AnnoVar annotation files by running the following commands (take human hg19 as an example):
+ - mkdir annotations
+ - cd annotations
+ - perl ../programs/c/customizedDB/annovar/annotate_variation.pl -downdb -buildver hg19 -downdb knownGene human/
+ - cd ..
+ 
+__Step 3__: prepare reference genome (FASTA format)  # this file is required for splice junction and RNA 6FT analysis
+ - For model organisms, the reference genome should be available through UCSC genome browser database (http://genome.ucsc.edu/). 
+ 
+   Example command: 
+   wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
+   Concatenate all the fasta files using the following command
+   cat *.fa > hg19_genome_raw.fa
 
-- Step 1: set up module and program paths by running the following commands:
-
-cd programs
-perl path_setup.pl
-cd ..
-
-- Step 2: download AnnoVar annotation files by running the following commands (take human hg19 as an example):
-
-mkdir annotations
-cd annotations
-perl ../programs/c/customizedDB/annovar/annotate_variation.pl -downdb -buildver hg19 -downdb knownGene human/
-cd ..
-
-- Step 3: prepare reference genome (FASTA format)  # this file is required for splice junction and RNA 6FT analysis
-
-For model organisms, the reference genome should be available through UCSC genome browser database (http://genome.ucsc.edu/). 
-
-Example command: 
-wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
- Concatenate all the fasta files using the following command
-cat *.fa > hg19_genome_raw.fa
-
-- Step 4: (Optional but recommended) update uniProt-UCSC ID convertion table based on pairwise sequence alignment. 
-
-For human, an updated uniProt-UCSC ID convertion table (named 'ID_convert_uniProt2UCSChg19.txt') is available in the exampleData_v6.2/ folder. This table is used to correct the UCSC downloaded table, using the following command:
-
-perl tools/updateIdTab.pl annotations/human/hg19_kgXref.txt exampleData_v6.2/resources/ID_convert_uniProt2UCSChg19.txt
+__Step 4__: (Optional but recommended) update uniProt-UCSC ID convertion table based on pairwise sequence alignment. 
+> For human, an updated uniProt-UCSC ID convertion table (named 'ID_convert_uniProt2UCSChg19.txt') is available in the exampleData_v6.2/ folder. This table is used to correct the UCSC downloaded table, using the following command:
+  - perl tools/updateIdTab.pl annotations/human/hg19_kgXref.txt exampleData_v6.2/resources/ID_convert_uniProt2UCSChg19.txt
 
 
 ----------------------
