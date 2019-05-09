@@ -1,5 +1,5 @@
 ----------------------
-Introduction
+### Introduction
 ----------------------
 
 JUMPg is a proteogenomics software pipeline for analyzing large mass spectrometry (MS) and functional genomics datasets. The pipeline includes customized database building, tag-based database search, peptide-spectrum match filtering, and data visualization. The program is written in perl and is designed for high performance parallel computing systems. 
@@ -36,10 +36,10 @@ Software Requirements
 The program is written by a combination of Perl and R. It should run on every system with Perl5 and R 3.1.0. The minimum required Perl version should be Perl 5.8 or better.
 
 Perl modules are needed:
-	Parallel::ForkManager
-	Statistics::Distributions
-	Clone
-	Excel/Writer/XLSX.pm (optional but recommended)
+- Parallel::ForkManager
+- Statistics::Distributions
+- Clone
+- Excel/Writer/XLSX.pm (optional but recommended)
 
 To install perl modules, please refer to:
 http://www.cpan.org/modules/INSTALL.html
@@ -55,13 +55,13 @@ Starting from JUMPg_v2.3.1, the program can be run on either high performance co
 
 The program has been successfully tested on the following system:
 
-Cluster mode (key parameters: 'cluster = 1' & 'Job_Management_System = SGE'):
- Batch-queuing system: SGE, version 6.1u5, qsub and qstat
- 128 GB memory and 64 cores on each node
++ Cluster mode (key parameters: 'cluster = 1' & 'Job_Management_System = SGE'):
+  - Batch-queuing system: SGE, version 6.1u5, qsub and qstat
+  - 128 GB memory and 64 cores on each node
 
-Single server mode (key parameters: 'cluster = 0' & 'processors_used = 8'): 
-  32 GB memory
-  2 GHz CPU processors with 8 cores
++ Single server mode (key parameters: 'cluster = 0' & 'processors_used = 8'): 
+  - 32 GB memory
+  - 2 GHz CPU processors with 8 cores
  
 ----------------------
 Installation
@@ -73,25 +73,25 @@ IMPORTANT: The folder containing all the source code needs to be accessible by e
 
 INSTALLATION:
 
--step 0: unzip the source code and test data packages in the current directory by running the following commands:
+- step 0: unzip the source code and test data packages in the current directory by running the following commands:
 
 unzip JUMPg_v2.3.1.zip (already unzipped if downloaded from github)
 unzip exampleData_v6.2.zip
 
--Step 1: set up module and program paths by running the following commands:
+- Step 1: set up module and program paths by running the following commands:
 
 cd programs
 perl path_setup.pl
 cd ..
 
--Step 2: download AnnoVar annotation files by running the following commands (take human hg19 as an example):
+- Step 2: download AnnoVar annotation files by running the following commands (take human hg19 as an example):
 
 mkdir annotations
 cd annotations
 perl ../programs/c/customizedDB/annovar/annotate_variation.pl -downdb -buildver hg19 -downdb knownGene human/
 cd ..
 
--Step 3: prepare reference genome (FASTA format)  # this file is required for splice junction and RNA 6FT analysis
+- Step 3: prepare reference genome (FASTA format)  # this file is required for splice junction and RNA 6FT analysis
 
 For model organisms, the reference genome should be available through UCSC genome browser database (http://genome.ucsc.edu/). 
 
@@ -100,7 +100,7 @@ wget http://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz
  Concatenate all the fasta files using the following command
 cat *.fa > hg19_genome_raw.fa
 
--Step 4: (Optional but recommended) update uniProt-UCSC ID convertion table based on pairwise sequence alignment. 
+- Step 4: (Optional but recommended) update uniProt-UCSC ID convertion table based on pairwise sequence alignment. 
 
 For human, an updated uniProt-UCSC ID convertion table (named 'ID_convert_uniProt2UCSChg19.txt') is available in the exampleData_v6.2/ folder. This table is used to correct the UCSC downloaded table, using the following command:
 
@@ -124,15 +124,11 @@ Users can find example input files in exampleData_v6.2.tar.gz (within the rna_da
 If users process the data from RNA-seq raw reads, to assist the input file preparation process, a wrapper (called 'RNAseq_preprocess.pl' located in the tools/ folder) is provided that contains RNAseq alignment (by STAR), mutation detection (by GATK), and novel splice junction filtering. 
 
 To run the wrapper, the following 3rd party software is required:
-
 1) STAR: https://github.com/alexdobin/STAR/releases
 Note that the reference genome should be index by the STAR 'genomeGenerate' module 
-
 2) Picard: http://broadinstitute.github.io/picard/
-
 3) GATK: https://www.broadinstitute.org/gatk/
 Note that GATK requires the reference genome to be sorted by kayrotypic order
-
 4) Samtools: http://samtools.sourceforge.net/
 Only used for indexing BAM files
 
@@ -207,5 +203,5 @@ Maintainers
 
 * To submit bug reports and feature suggestions, please contact:
 
-Yuxin Li (yuxin.li@stjude.org) and Junmin Peng (junmin.peng@stjude.org)
+  Yuxin Li (yuxin.li@stjude.org) and Junmin Peng (junmin.peng@stjude.org)
 
