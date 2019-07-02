@@ -97,7 +97,7 @@ __Step 3__: prepare reference genome (FASTA format)  # this file is required for
    cat *.fa > hg19_genome_raw.fa
 
 __Step 4__: (Optional but recommended) update uniProt-UCSC ID convertion table based on pairwise sequence alignment. 
-> For human, an updated uniProt-UCSC ID convertion table (named 'ID_convert_uniProt2UCSChg19.txt') is available in the exampleData_v6.2/ folder. This table is used to correct the UCSC downloaded table, using the following command:
+ - For human, an updated uniProt-UCSC ID convertion table (named 'ID_convert_uniProt2UCSChg19.txt') is available in the exampleData_v6.2/ folder. This table is used to correct the UCSC downloaded table, using the following command:
   - perl tools/updateIdTab.pl annotations/human/hg19_kgXref.txt exampleData_v6.2/resources/ID_convert_uniProt2UCSChg19.txt
 
 
@@ -145,50 +145,50 @@ Run the example
 
 Since the program supports multistage database search analysis, we have designed a two-stage test dataset. For the 1st stage, the MS/MS spectra are searched against a peptide database pooled from uniProt, mutations and splice junctions; the matching results are filtered to ~1% false discovery rate. For the 2nd stage, the remaining high quality spectra are searched against the 6FT database.
 
-1) 1st stage analysis:
+__1st stage analysis:__
 
--Step 1: cp 'jump_g_v2.2.stage1.params' (included in exampleData_v6.2/parameters folder) to your working directory and edit the following parameters:
+__Step 1__: cp 'jump_g_v2.2.stage1.params' (included in exampleData_v6.2/parameters folder) to your working directory and edit the following parameters:
 
 The following assumes that your working directory is at "/home/usr/JUMPg"
 
-  a) input_ref_proteins = /home/usr/JUMPg/exampleData_v6.2/uniProt/reference_uniProt_human.fasta
-  b) input_mutation = /home/usr/JUMPg/exampleData_v6.2/rna_database/mutations.txt
-  c) input_junction = /home/usr/JUMPg/exampleData_v6.2/rna_database/junctions.txt
-  d) annovar_annotation_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_knownGene.txt
-  e) gene_ID_convert_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_kgXref.txt
-  f) reference_genome = /home/usr/genomes/hg19_genome_raw.fa
+ - input_ref_proteins = /home/usr/JUMPg/exampleData_v6.2/uniProt/reference_uniProt_human.fasta
+ - input_mutation = /home/usr/JUMPg/exampleData_v6.2/rna_database/mutations.txt
+ - input_junction = /home/usr/JUMPg/exampleData_v6.2/rna_database/junctions.txt
+ - annovar_annotation_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_knownGene.txt
+ - gene_ID_convert_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_kgXref.txt
+ - reference_genome = /home/usr/genomes/hg19_genome_raw.fa
 
--Step 2: cp spectra file 'exampleData_v6.2/spectra/MS_test.mzXML' (included in exampleData_v6.2.tar.gz) to your working diredirectory and run the program using the following command:
+__Step 2__: cp spectra file 'exampleData_v6.2/spectra/MS_test.mzXML' (included in exampleData_v6.2.tar.gz) to your working diredirectory and run the program using the following command:
 
-perl /home/usr/JUMPg_v2.3.1/programs/JUMPg_v2.3.1.pl jump_g_v2.2.stage1.params MS_test.mzXML
+> perl /home/usr/JUMPg_v2.3.1/programs/JUMPg_v2.3.1.pl jump_g_v2.2.stage1.params MS_test.mzXML
 
--Output: the program will generate a folder named 'gnm_round1_test1'. The final results are all included in the 'publications' folder that includes 6 files:
-  a) identified_peptide_table.txt: a text table, showing the identified peptide sequences, PSM counts, tags and scores of the best PSM, and database entries.
-  b) mutation_peptides.txt: a text table showing the identified mutation peptides
-  c) mutation_peptides.bed: mutation peptides with genomic locations in BED format, which can be co-displayed with other genomic information on the UCSC genome browser
-  d) junction_peptides.txt: a text table showing the identified novel junction peptides
-  e) junction_peptides.bed: novel junction peptides with genomic locations in BED format for visualization on the UCSC genome browser
-  f) reference_peptides.bed: reference peptides with genomic locations in BED format for visualization on the UCSC genome browser
+__Output__: the program will generate a folder named 'gnm_round1_test1'. The final results are all included in the 'publications' folder that includes 6 files:
+ - identified_peptide_table.txt: a text table, showing the identified peptide sequences, PSM counts, tags and scores of the best PSM, and database entries.
+ - mutation_peptides.txt: a text table showing the identified mutation peptides
+ - mutation_peptides.bed: mutation peptides with genomic locations in BED format, which can be co-displayed with other genomic information on the UCSC genome browser
+ - junction_peptides.txt: a text table showing the identified novel junction peptides
+ - junction_peptides.bed: novel junction peptides with genomic locations in BED format for visualization on the UCSC genome browser
+ - reference_peptides.bed: reference peptides with genomic locations in BED format for visualization on the UCSC genome browser
 
 For multistage analysis, the program also generates the unmatched high quality MS/MS spectra, of which the path is recorded in this file: gnm_round1_test1/multistage/qc_MSMS_input.txt. This file will be taken as input for 2nd stage analysis.
 
-2) 2nd stage analysis:
+__2nd stage analysis:__
 
--Step 1: cp 'jump_g_v2.2.stage2.params' (included in exampleData_v6.2/parameters) to your working directory and edit the following parameters:
-  a) input_transcript_6FT = /home/usr/JUMPg/exampleData_v6.2/rna_database/assembled_transcripts.fasta
-  b) annovar_annotation_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_knownGene.txt
-  c) gene_ID_convert_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_kgXref.txt
-  d) reference_genome = /home/usr/genomes/hg19_genome_raw.fa
-  f) reference_protein = /home/usr/JUMPg/exampleData_v6.2/uniProt/reference_uniProt_human.fasta
+__Step 1__: cp 'jump_g_v2.2.stage2.params' (included in exampleData_v6.2/parameters) to your working directory and edit the following parameters:
+ - input_transcript_6FT = /home/usr/JUMPg/exampleData_v6.2/rna_database/assembled_transcripts.fasta
+ - annovar_annotation_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_knownGene.txt
+ - gene_ID_convert_file = /home/usr/JUMPg/JUMPg_v2.3.1/annotations/human/hg19_kgXref.txt
+ - reference_genome = /home/usr/genomes/hg19_genome_raw.fa
+ - reference_protein = /home/usr/JUMPg/exampleData_v6.2/uniProt/reference_uniProt_human.fasta
 
--Step 2: copy qc_MSMS_input.txt (that records the path to unmatched high quality MS/MS spectra) to current directory:
+__Step 2__: copy qc_MSMS_input.txt (that records the path to unmatched high quality MS/MS spectra) to current directory:
 
-cp gnm_round1_test1/multistage/qc_MSMS_input.txt .
+>cp gnm_stage1_test1/multistage/qc_MSMS_input.txt .
 
--Step 3: run the program by the command:
-perl /home/usr/JUMPg_v2.3.1/programs/JUMPg_v2.3.1.pl jump_g_v2.2.stage2.params qc_MSMS_input.txt
+__Step 3__: run the program by the command:
+>perl /home/usr/JUMPg_v2.3.1/programs/JUMPg_v2.3.1.pl jump_g_v2.2.stage2.params qc_MSMS_input.txt
 
--Output: similar to the 1st stage result, the program will generate a folder named 'gnm_round2_test1' containing results in its 'publications' folder.
+__Output__: similar to the 1st stage result, the program will generate a folder named 'gnm_round2_test1' containing results in its 'publications' folder.
 
 
 ----------------------
